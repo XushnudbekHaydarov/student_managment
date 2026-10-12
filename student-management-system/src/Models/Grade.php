@@ -1,6 +1,6 @@
 <?php
 
 
-class Grade {
+class Grade extends Student {
 
 }
