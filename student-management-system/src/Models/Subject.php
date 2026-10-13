@@ -21,7 +21,7 @@ class Subject
         return $this->subject_name;
     }
 
-    public function setSubjectName(int $subject_name): void
+    public function setSubjectName(string $subject_name): void
     {
         $this->subject_name = $subject_name;
     }
