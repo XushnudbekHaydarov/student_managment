@@ -21,12 +21,12 @@ class Subject
         return $this->subject_name;
     }
 
-    public function setSubjectName(int $subject_name)
+    public function setSubjectName(int $subject_name): void
     {
         $this->subject_name = $subject_name;
     }
 
-    public function validateName(string $subject_name)
+    public function validateName(string $subject_name): bool
     {
         if (trim($subject_name) == "") {
             return false;
