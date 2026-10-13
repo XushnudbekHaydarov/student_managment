@@ -1,14 +1,19 @@
 <?php
 
+
 class Subject
 {
-    public int $subject_id;
-    public string $subject_name;
+    private int $subject_id;
+    private string $subject_name;
 
     public function __construct(int $subject_id, string $subject_name)
     {
+        if ($subject_id <= 0) {
+            throw new InvalidArgumentException("Fan ID si noto'g'ri");
+        }
+
         $this->subject_id = $subject_id;
-        $this->subject_name = $subject_name;
+        $this->setSubjectName($subject_name);
     }
 
     public function getSubjectId(): int
@@ -23,15 +28,15 @@ class Subject
 
     public function setSubjectName(string $subject_name): void
     {
-        $this->subject_name = $subject_name;
+        if (!$this->validateName($subject_name)) {
+            throw new InvalidArgumentException("Fan nomi bo'sh bo'lishi mumkin emas");
+        }
+
+        $this->subject_name = trim($subject_name);
     }
 
-    public function validateName(string $subject_name): bool
+    private function validateName(string $subject_name): bool
     {
-        if (trim($subject_name) == "") {
-            return false;
-        }
-        return true;
-
+        return trim($subject_name) !== "";
     }
 }

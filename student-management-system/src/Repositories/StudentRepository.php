@@ -18,8 +18,32 @@ class StudentRepository{
     {
         return $this->students;
     }
-    public function update(){}
-    public function delete(){}
+    public function update(Student $student): bool
+    {
+        foreach ($this->students as $index => $existingStudent) {
+            if ($existingStudent->getId() === $student->getId()) {
+                $this->students[$index] = $student;
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+    public function delete(int $id): bool
+    {
+        foreach ($this->students as $index => $student) {
+            if ($student->getId() === $id) {
+                unset($this->students[$index]);
+
+                $this->students = array_values($this->students);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
     public function findById(int $id): ?Student
     {
         foreach ($this->students as $student) {
@@ -29,6 +53,18 @@ class StudentRepository{
         }
 
         return null;
+    }
+    public function search(string $query): array
+    {
+        $results = [];
+
+        foreach ($this->students as $student) {
+            if (stripos($student->getFullName(), $query) !== false || (string) $student->getId() === $query) {
+                $results[] = $student;
+            }
+        }
+
+        return $results;
     }
 
 }
