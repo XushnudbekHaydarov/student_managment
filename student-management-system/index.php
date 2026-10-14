@@ -19,7 +19,6 @@ function showStudent(Student $student): void
     echo "------------------------" . PHP_EOL;
 }
 
-// Terminal menyusi
 while (true) {
     echo PHP_EOL;
     echo "===== STUDENT MANAGEMENT SYSTEM =====" . PHP_EOL;
