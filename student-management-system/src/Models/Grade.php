@@ -12,32 +12,22 @@ class Grade
         int $score
     ) {
         if ($student_id <= 0) {
-            throw new InvalidArgumentException("Talaba ID si noto'g'ri");
+            echo "Talaba ID si noto'g'ri" . PHP_EOL;
+            return;
         }
 
         if ($subject_id <= 0) {
-            throw new InvalidArgumentException("Fan ID si noto'g'ri");
+            echo "Fan ID si noto'g'ri" . PHP_EOL;
+            return;
+        }
+
+        if (!$this->isValidScore($score)) {
+            echo "Baho 0 dan 100 gacha bo'lishi kerak" . PHP_EOL;
+            return;
         }
 
         $this->student_id = $student_id;
         $this->subject_id = $subject_id;
-
-        $this->setScore($score);
-    }
-
-    public function getScore(): int
-    {
-        return $this->score;
-    }
-
-    public function setScore(int $score): void
-    {
-        if (!$this->isValidScore($score)) {
-            throw new InvalidArgumentException(
-                "Baho 0 dan 100 gacha bo'lishi kerak"
-            );
-        }
-
         $this->score = $score;
     }
 
@@ -51,10 +41,26 @@ class Grade
         return $this->subject_id;
     }
 
+    public function getScore(): int
+    {
+        return $this->score;
+    }
+
+    public function setScore(int $score): bool
+    {
+        if (!$this->isValidScore($score)) {
+            echo "Baho 0 dan 100 gacha bo'lishi kerak" . PHP_EOL;
+            return false;
+        }
+
+        $this->score = $score;
+
+        return true;
+    }
+
     public function isValid(): bool
     {
-        return $this->isValidScore($this->score);
-    }
+        return isset($this->student_id, $this->subject_id, $this->score) && $this->student_id > 0 && $this->subject_id > 0 && $this->isValidScore($this->score);}
 
     private function isValidScore(int $score): bool
     {

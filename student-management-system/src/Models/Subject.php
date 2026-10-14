@@ -1,19 +1,28 @@
 <?php
 
-
 class Subject
 {
     private int $subject_id;
     private string $subject_name;
 
-    public function __construct(int $subject_id, string $subject_name)
-    {
+    public function __construct(
+        int $subject_id,
+        string $subject_name
+    ) {
+        $subject_name = trim($subject_name);
+
         if ($subject_id <= 0) {
-            throw new InvalidArgumentException("Fan ID si noto'g'ri");
+            echo "Fan ID si noto'g'ri" . PHP_EOL;
+            return;
+        }
+
+        if (!$this->validateName($subject_name)) {
+            echo "Fan nomi bo'sh bo'lishi mumkin emas" . PHP_EOL;
+            return;
         }
 
         $this->subject_id = $subject_id;
-        $this->setSubjectName($subject_name);
+        $this->subject_name = $subject_name;
     }
 
     public function getSubjectId(): int
@@ -26,17 +35,26 @@ class Subject
         return $this->subject_name;
     }
 
-    public function setSubjectName(string $subject_name): void
+    public function setSubjectName(string $subject_name): bool
     {
+        $subject_name = trim($subject_name);
+
         if (!$this->validateName($subject_name)) {
-            throw new InvalidArgumentException("Fan nomi bo'sh bo'lishi mumkin emas");
+            echo "Fan nomi bo'sh bo'lishi mumkin emas" . PHP_EOL;
+            return false;
         }
 
-        $this->subject_name = trim($subject_name);
+        $this->subject_name = $subject_name;
+        return true;
     }
 
     private function validateName(string $subject_name): bool
     {
-        return trim($subject_name) !== "";
+        return $subject_name !== '';
+    }
+
+    public function isValid(): bool
+    {
+        return isset($this->subject_id, $this->subject_name) && $this->subject_id > 0 && $this->validateName($this->subject_name);
     }
 }
