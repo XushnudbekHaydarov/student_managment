@@ -1,18 +1,28 @@
 <?php
 
 require_once __DIR__ . '/src/Models/Student.php';
+require_once __DIR__ . '/src/Models/Group.php';
+require_once __DIR__ . '/src/Models/Subject.php';
+require_once __DIR__ . '/src/Models/Grade.php';
+
 require_once __DIR__ . '/src/Interfaces/ManageableInterface.php';
 require_once __DIR__ . '/src/Interfaces/SearchableInterface.php';
+
+require_once __DIR__ . '/src/Repositories/GroupRepository.php';
 require_once __DIR__ . '/src/Repositories/StudentRepository.php';
-require_once __DIR__ . '/src/Services/StudentService.php';
-require_once __DIR__ . '/src/Models/Subject.php';
 require_once __DIR__ . '/src/Repositories/SubjectRepository.php';
-require_once __DIR__ . '/src/Services/SubjectService.php';
 require_once __DIR__ . '/src/Repositories/GradeRepository.php';
+
+require_once __DIR__ . '/src/Services/GroupService.php';
+require_once __DIR__ . '/src/Services/StudentService.php';
+require_once __DIR__ . '/src/Services/SubjectService.php';
 require_once __DIR__ . '/src/Services/GradeService.php';
 
+$groupRepository = new GroupRepository([]);
+$groupService = new GroupService($groupRepository);
+
 $repository = new StudentRepository([]);
-$service = new StudentService($repository);
+$service = new StudentService($repository, $groupRepository);
 
 $subjectRepository = new SubjectRepository([]);
 $subjectService = new SubjectService($subjectRepository);
@@ -25,15 +35,28 @@ $gradeService = new GradeService(
     $subjectRepository
 );
 
-function showStudent(Student $student): void
+
+function showStudent(
+    Student      $student,
+    GroupService $groupService
+): void
 {
     echo "ID: " . $student->getId() . PHP_EOL;
     echo "Ism: " . $student->getFullName() . PHP_EOL;
     echo "Yosh: " . $student->getAge() . PHP_EOL;
     echo "Email: " . $student->getEmail() . PHP_EOL;
-    echo "Guruh: " . $student->getGroup() . PHP_EOL;
+
+    $group = $groupService->getGroupById(
+        $student->getGroupId()
+    );
+
+    echo "Guruh: " .
+        ($group !== null ? $group->getGroupName() : "Topilmadi")
+        . PHP_EOL;
+
     echo "------------------------" . PHP_EOL;
 }
+
 
 function showSubject(Subject $subject): void
 {
@@ -50,45 +73,128 @@ function showGrade(Grade $grade): void
     echo "------------------------" . PHP_EOL;
 }
 
+
+function color(string $text, string $color): string
+{
+    $colors = [
+        'red' => "\033[31m",
+        'green' => "\033[32m",
+        'yellow' => "\033[33m",
+        'blue' => "\033[34m",
+        'magenta' => "\033[35m",
+        'cyan' => "\033[36m",
+        'white' => "\033[37m",
+        'bold' => "\033[1m",
+        'reset' => "\033[0m",
+    ];
+
+    return ($colors[$color] ?? $colors['white'])
+        . $text
+        . $colors['reset'];
+}
+
+function line(): void
+{
+    echo color(
+            "============================================================",
+            'cyan'
+        ) . PHP_EOL;
+}
+
+
 while (true) {
     echo PHP_EOL;
-    echo "===== STUDENT MANAGEMENT SYSTEM =====" . PHP_EOL;
-    echo "1. Talaba qo'shish" . PHP_EOL;
-    echo "2. Barcha talabalarni ko'rish" . PHP_EOL;
-    echo "3. ID orqali talaba topish" . PHP_EOL;
-    echo "4. Talaba ma'lumotlarini yangilash" . PHP_EOL;
-    echo "5. Talabani o'chirish" . PHP_EOL;
-    echo "6. Talaba qidirish" . PHP_EOL;
-    echo "7. Fan qo'shish" . PHP_EOL;
-    echo "8. Barcha fanlarni ko'rish" . PHP_EOL;
-    echo "9. ID orqali fan topish" . PHP_EOL;
-    echo "10. Fan nomini yangilash" . PHP_EOL;
-    echo "11. Fanni o'chirish" . PHP_EOL;
-    echo "12. Fan qidirish" . PHP_EOL;
-    echo "13. Talabaga baho qo'shish" . PHP_EOL;
-    echo "14. Barcha baholarni ko'rish" . PHP_EOL;
-    echo "15. Talabaning baholarini ko'rish" . PHP_EOL;
-    echo "16. Bahoni yangilash" . PHP_EOL;
-    echo "17. Bahoni o'chirish" . PHP_EOL;
-    echo "18. Talabaning o'rtacha bahosi" . PHP_EOL;
-    echo "19. Talabaning o'tgan yoki o'tmaganini tekshirish" . PHP_EOL;
-    echo "0. Chiqish" . PHP_EOL;
 
-    $choice = trim(readline("Tanlovingiz: "));
+    line();
+
+    echo color(
+            "             STUDENT MANAGEMENT SYSTEM",
+            'bold'
+        ) . PHP_EOL;
+
+    line();
+
+    echo color("  TALABALAR", 'yellow') . PHP_EOL;
+    echo color("  [01]", 'green') . " Talaba qo'shish" . PHP_EOL;
+    echo color("  [02]", 'green') . " Barcha talabalarni ko'rish" . PHP_EOL;
+    echo color("  [03]", 'green') . " ID orqali talaba topish" . PHP_EOL;
+    echo color("  [04]", 'green') . " Talaba ma'lumotlarini yangilash" . PHP_EOL;
+    echo color("  [05]", 'green') . " Talabani o'chirish" . PHP_EOL;
+    echo color("  [06]", 'green') . " Talaba qidirish" . PHP_EOL;
+
+    echo PHP_EOL;
+    echo color("  FANLAR", 'yellow') . PHP_EOL;
+    echo color("  [07]", 'blue') . " Fan qo'shish" . PHP_EOL;
+    echo color("  [08]", 'blue') . " Barcha fanlarni ko'rish" . PHP_EOL;
+    echo color("  [09]", 'blue') . " ID orqali fan topish" . PHP_EOL;
+    echo color("  [10]", 'blue') . " Fan nomini yangilash" . PHP_EOL;
+    echo color("  [11]", 'blue') . " Fanni o'chirish" . PHP_EOL;
+    echo color("  [12]", 'blue') . " Fan qidirish" . PHP_EOL;
+
+    echo PHP_EOL;
+    echo color("  BAHOLAR", 'yellow') . PHP_EOL;
+    echo color("  [13]", 'magenta') . " Talabaga baho qo'shish" . PHP_EOL;
+    echo color("  [14]", 'magenta') . " Barcha baholarni ko'rish" . PHP_EOL;
+    echo color("  [15]", 'magenta') . " Talabaning baholarini ko'rish" . PHP_EOL;
+    echo color("  [16]", 'magenta') . " Bahoni yangilash" . PHP_EOL;
+    echo color("  [17]", 'magenta') . " Bahoni o'chirish" . PHP_EOL;
+    echo color("  [18]", 'magenta') . " Talabaning o'rtacha bahosi" . PHP_EOL;
+    echo color("  [19]", 'magenta') . " Talabaning o'tgan yoki o'tmaganini tekshirish" . PHP_EOL;
+
+    echo PHP_EOL;
+    echo color("  GURUHLAR", 'yellow') . PHP_EOL;
+    echo color("  [20]", 'cyan') . " Guruh qo'shish" . PHP_EOL;
+    echo color("  [21]", 'cyan') . " Barcha guruhlarni ko'rish" . PHP_EOL;
+    echo color("  [22]", 'cyan') . " ID orqali guruh topish" . PHP_EOL;
+    echo color("  [23]", 'cyan') . " Guruh nomini yangilash" . PHP_EOL;
+    echo color("  [24]", 'cyan') . " Guruhni o'chirish" . PHP_EOL;
+    echo color("  [25]", 'cyan') . " Guruh qidirish" . PHP_EOL;
+
+    line();
+
+    echo color("  [0]", 'red') . " Chiqish" . PHP_EOL;
+
+    line();
+
+    $choice = trim(readline(
+        color("  Tanlovingiz >> ", 'bold')
+    ));
 
     try {
         switch ($choice) {
+
             case '1':
                 $id = (int)readline("Talaba ID si: ");
                 $name = readline("To'liq ismi: ");
                 $age = (int)readline("Yoshi: ");
                 $email = readline("Email: ");
-                $group = readline("Guruhi: ");
 
-                if ($service->createStudent($id, $name, $age, $email, $group)) {
+                $groups = $groupService->getAllGroups();
+
+                if (empty($groups)) {
+                    echo "Avval guruh yaratishingiz kerak!" . PHP_EOL;
+                    break;
+                }
+
+                echo "Mavjud guruhlar:" . PHP_EOL;
+
+                foreach ($groups as $group) {
+                    echo $group->getGroupId() . ". "
+                        . $group->getGroupName() . PHP_EOL;
+                }
+
+                $group_id = (int)readline("Guruh ID si: ");
+
+                if ($service->createStudent(
+                    $id,
+                    $name,
+                    $age,
+                    $email,
+                    $group_id
+                )) {
                     echo "Talaba muvaffaqiyatli qo'shildi!" . PHP_EOL;
                 } else {
-                    echo "Bu ID bilan talaba allaqachon mavjud!" . PHP_EOL;
+                    echo "Talaba qo'shilmadi. Ma'lumotlarni tekshiring." . PHP_EOL;
                 }
                 break;
 
@@ -101,7 +207,7 @@ while (true) {
                 }
 
                 foreach ($students as $student) {
-                    showStudent($student);
+                    showStudent($student, $groupService);
                 }
                 break;
 
@@ -110,11 +216,12 @@ while (true) {
                 $student = $service->getStudentById($id);
 
                 if ($student !== null) {
-                    showStudent($student);
+                    showStudent($student, $groupService);
                 } else {
                     echo "Talaba topilmadi." . PHP_EOL;
                 }
                 break;
+
 
             case '4':
                 $id = (int)readline("Yangilanadigan talaba ID si: ");
@@ -128,9 +235,30 @@ while (true) {
                 $name = readline("Yangi to'liq ism: ");
                 $age = (int)readline("Yangi yosh: ");
                 $email = readline("Yangi email: ");
-                $group = readline("Yangi guruh: ");
 
-                $updatedStudent = new Student($id, $name, $age, $email, $group);
+                $groups = $groupService->getAllGroups();
+
+                if (empty($groups)) {
+                    echo "Guruhlar mavjud emas." . PHP_EOL;
+                    break;
+                }
+
+                echo "Mavjud guruhlar:" . PHP_EOL;
+
+                foreach ($groups as $group) {
+                    echo $group->getGroupId() . ". "
+                        . $group->getGroupName() . PHP_EOL;
+                }
+
+                $group_id = (int)readline("Yangi guruh ID si: ");
+
+                $updatedStudent = new Student(
+                    $id,
+                    $name,
+                    $age,
+                    $email,
+                    $group_id
+                );
 
                 if ($service->updateStudent($updatedStudent)) {
                     echo "Talaba ma'lumotlari yangilandi!" . PHP_EOL;
@@ -159,7 +287,7 @@ while (true) {
                 }
 
                 foreach ($results as $student) {
-                    showStudent($student);
+                    showStudent($student, $groupService);
                 }
                 break;
             case '7':
@@ -323,6 +451,82 @@ while (true) {
                     echo "O'tmagan" . PHP_EOL;
                 }
                 break;
+
+            case '20':
+                $id = (int)readline("Guruh ID si: ");
+                $name = readline("Guruh nomi: ");
+
+                if ($groupService->createGroup($id, $name)) {
+                    echo "Guruh muvaffaqiyatli qo'shildi!" . PHP_EOL;
+                } else {
+                    echo "Guruh qo'shilmadi. Ma'lumotlarni tekshiring yoki ID takrorlangan." . PHP_EOL;
+                }
+                break;
+
+            case '21':
+                $groups = $groupService->getAllGroups();
+
+                if (empty($groups)) {
+                    echo "Guruhlar ro'yxati bo'sh." . PHP_EOL;
+                    break;
+                }
+
+                foreach ($groups as $group) {
+                    echo "ID: " . $group->getGroupId() . PHP_EOL;
+                    echo "Guruh nomi: " . $group->getGroupName() . PHP_EOL;
+                    echo "------------------------" . PHP_EOL;
+                }
+                break;
+
+            case '22':
+                $id = (int)readline("Guruh ID si: ");
+                $group = $groupService->getGroupById($id);
+
+                if ($group !== null) {
+                    echo "ID: " . $group->getGroupId() . PHP_EOL;
+                    echo "Guruh nomi: " . $group->getGroupName() . PHP_EOL;
+                } else {
+                    echo "Guruh topilmadi." . PHP_EOL;
+                }
+                break;
+
+            case '23':
+                $id = (int)readline("Yangilanadigan guruh ID si: ");
+                $name = readline("Yangi guruh nomi: ");
+
+                if ($groupService->updateGroup($id, $name)) {
+                    echo "Guruh yangilandi!" . PHP_EOL;
+                } else {
+                    echo "Guruh yangilanmadi. ID yoki nomni tekshiring." . PHP_EOL;
+                }
+                break;
+
+            case '24':
+                $id = (int)readline("O'chiriladigan guruh ID si: ");
+
+                if ($groupService->deleteGroup($id)) {
+                    echo "Guruh o'chirildi!" . PHP_EOL;
+                } else {
+                    echo "Guruh topilmadi yoki o'chirilmadi." . PHP_EOL;
+                }
+                break;
+
+            case '25':
+                $query = readline("Guruh nomi yoki ID sini kiriting: ");
+                $groups = $groupService->searchGroups($query);
+
+                if (empty($groups)) {
+                    echo "Guruh topilmadi." . PHP_EOL;
+                    break;
+                }
+
+                foreach ($groups as $group) {
+                    echo "ID: " . $group->getGroupId() . PHP_EOL;
+                    echo "Guruh nomi: " . $group->getGroupName() . PHP_EOL;
+                    echo "------------------------" . PHP_EOL;
+                }
+                break;
+
             case '0':
                 echo "Dastur tugatildi. Xayr!" . PHP_EOL;
                 exit;
@@ -331,8 +535,8 @@ while (true) {
                 echo "Noto'g'ri tanlov. Qayta urinib ko'ring." . PHP_EOL;
         }
     } catch (InvalidArgumentException $e) {
-        echo "Xatolik: " . $e->getMessage() . PHP_EOL;
+        echo color("Xatolik: " . $e->getMessage(), 'red') . PHP_EOL;
     } catch (Throwable $e) {
-        echo "Kutilmagan xatolik: " . $e->getMessage() . PHP_EOL;
+        echo color("Kutilmagan xatolik: " . $e->getMessage(), 'red') . PHP_EOL;
     }
 }

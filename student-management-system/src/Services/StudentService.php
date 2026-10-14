@@ -6,10 +6,14 @@ require_once __DIR__ . '/../Repositories/StudentRepository.php';
 class StudentService
 {
     private StudentRepository $repository;
+    private GroupRepository $groupRepository;
 
-    public function __construct(StudentRepository $repository)
-    {
+    public function __construct(
+        StudentRepository $repository,
+        GroupRepository $groupRepository
+    ) {
         $this->repository = $repository;
+        $this->groupRepository = $groupRepository;
     }
     public function createStudent(
         int $id,
